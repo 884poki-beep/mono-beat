@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MONO BEAT</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:#080808;color:#fff;font-family:Arial,sans-serif;text-align:center}
+main{max-width:500px;margin:auto}
+.panel{border:1px solid #444;border-radius:16px;padding:16px;margin-bottom:14px}
+h1{font-size:42px;letter-spacing:6px;margin:12px 0}
+.sub{color:#aaa;font-size:12px;letter-spacing:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}
+.stat{border:1px solid #444;border-radius:10px;padding:10px 2px}
+.stat strong{display:block;font-size:24px;margin-top:4px}
+.lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;height:280px;background:#111;border-radius:12px;overflow:hidden}
+.lane{position:relative;overflow:hidden;background:#0a0a0a;border:0;border-right:1px solid #333;touch-action:manipulation}
+.note{position:absolute;left:12%;width:76%;height:12px;background:#fff;border-radius:8px}
+.hit{position:absolute;bottom:35px;left:5%;width:90%;height:5px;background:#aaa;border-radius:5px}
+button{background:#171717;color:white;border:1px solid #555;border-radius:10px;padding:13px 20px;font-size:16px;font-weight:bold;margin:5px;min-height:46px}
+.primary{background:#fff;color:#000}
+#message{min-height:28px;font-weight:bold;margin:12px}
+small{color:#aaa;line-height:1.8}
+</style>
+</head>
+<body>
+<main>
+<section class="panel">
+<div class="sub">ORIGINAL RHYTHM GAME</div>
+<h1>MONO BEAT</h1>
+<div class="sub">FEEL THE BEAT. KEEP THE FLOW.</div>
+<div class="stats">
+<div class="stat">SCORE<strong id="score">0</strong></div>
+<div class="stat">COMBO<strong id="combo">0</strong></div>
+<div class="stat">BEST<strong id="best">0</strong></div>
+</div>
+<div class="lanes" id="arena">
+<button class="lane" data-lane="0" aria-label="左"><span class="hit"></span></button>
+<button class="lane" data-lane="1" aria-label="中央"><span class="hit"></span></button>
+<button class="lane" data-lane="2" aria-label="右"><span class="hit"></span></button>
+</div>
+<div id="message">STARTを押してゲーム開始！</div>
+<button class="primary" id="start">▶ START</button>
+<button id="stop">■ STOP</button>
+<p><small>ノーツが判定ラインに来たら、同じ列をタップ！</small></p>
+</section>
+<section class="panel">
+<h3>HOW TO PLAY</h3>
+<small>
+● 3つのレーンをタップしてノーツを拾おう。<br>
+● タイミングが合うと得点とコンボが増える。<br>
+● ミスするとコンボがリセットされる。<br>
+● オリジナル楽曲は後から追加できるよ！
+</small>
+</section>
+</main>
+<script>
+const arena=document.getElementById('arena');
+const lanes=[...document.querySelectorAll('.lane')];
+const scoreEl=document.getElementById('score');
+const comboEl=document.getElementById('combo');
+const bestEl=document.getElementById('best');
+const message=document.getElementById('message');
+const startBtn=document.getElementById('start');
+const stopBtn=document.getElementById('stop');
+
+let running=false,score=0,combo=0,best=0;
+let notes=[],lastSpawn=0,lastFrame=0,lastBeat=0,raf=0,audio=null;
+const speed=185,spawnEvery=610;
+
+function update(){
+ scoreEl.textContent=score;
+ comboEl.textContent=combo;
+ bestEl.textContent=best;
+}
+function say(text){message.textContent=text}
+
+function sound(freq=440,duration=.07){
+ if(!audio)return;
+ try{
+  const osc=audio.createOscillator();
+  const gain=audio.createGain();
+  osc.type='sine';
+  osc.frequency.value=freq;
+  gain.gain.setValueAtTime(.04,audio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
+  osc.connect(gain);
+  gain.connect(audio.destination);
+  osc.start();
+  osc.stop(audio.currentTime+duration);
+ }catch(e){}
+}
+function spawn(){
+ const lane=Math.floor(Math.random()*3);
+ const el=document.createElement('span');
+ el.className='note';
+ lanes[lane].appendChild(el);
+ notes.push({lane,y:-14,el});
+}
+function stopGame(){
+ running=false;
+ cancelAnimationFrame(raf);
+ notes.forEach(n=>n.el.remove());
+ notes=[];
+ startBtn.textContent='↻ RETRY';
+}
+function frame(now){
+ if(!running)return;
+ if(!lastFrame)lastFrame=now;
+ const dt=Math.min((now-lastFrame)/1000,.05);
+ lastFrame=now;
+ if(now-lastSpawn>spawnEvery){
+  spawn();
+  lastSpawn=now;
+ }
+ for(let i=notes.length-1;i>=0;i--){
+  const n=notes[i];
+  n.y+=speed*dt;
+  n.el.style.top=n.y+'px';
+  if(n.y>arena.clientHeight-25){
+   n.el.remove();
+   notes.splice(i,1);
+   combo=0;
+   update();
+   say('MISS');
+  }
+ }
+ if(now-lastBeat>500){
+  sound(180,.045);
+  lastBeat=now;
+ }
+ raf=requestAnimationFrame(frame);
+}
+function tap(lane){
+ if(!running)return;
+ const target=arena.clientHeight-40;
+ let idx=-1,dist=Infinity;
+ notes.forEach((n,i)=>{
+  if(n.lane===lane){
+   const d=Math.abs(n.y-target);
+   if(d<dist){dist=d;idx=i}
+  }
+ });
+ if(idx>=0&&dist<68){
+  const n=notes[idx];
+  n.el.remove();
+  notes.splice(idx,1);
+  const points=dist<22?100:dist<43?70:40;
+  score+=points;
+  combo++;
+  best=Math.max(best,score);
+  sound(500+lane*130,.08);
+  say(points===100?'PERFECT!':points===70?'GREAT!':'GOOD');
+ }else{
+  combo=0;
+  sound(110,.09);
+  say('MISS');
+ }
+ update();
+ const hit=lanes[lane].querySelector('.hit');
+ hit.style.opacity='.35';
+ setTimeout(()=>hit.style.opacity='1',90);
+}
+lanes.forEach((el,i)=>{
+ el.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  tap(i);
+ });
+});
+startBtn.addEventListener('click',async()=>{
+ if(running)return;
+ notes.forEach(n=>n.el.remove());
+ notes=[];
+ score=0;combo=0;lastSpawn=0;lastFrame=0;lastBeat=0;
+ update();
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(AC){
+   if(!audio)audio=new AC();
+   if(audio.state==='suspended')await audio.resume();
+  }
+ }catch(e){}
+ running=true;
+ startBtn.textContent='▶ PLAYING';
+ say('READY… TAP TO THE BEAT!');
+ raf=requestAnimationFrame(frame);
+});
+stopBtn.addEventListener('click',()=>{
+ if(running){
+  stopGame();
+  say('STOPPED! SCORE: '+score);
+ }else{
+  say('STARTを押してゲーム開始！');
+ }
+});
+update();
+</script>
+</body>
+</html>
