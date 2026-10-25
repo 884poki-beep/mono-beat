@@ -1,200 +1,23 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MONO BEAT</title>
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#080808"><title>Humans error · MONO BEAT</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:16px;background:#080808;color:#fff;font-family:Arial,sans-serif;text-align:center}
-main{max-width:500px;margin:auto}
-.panel{border:1px solid #444;border-radius:16px;padding:16px;margin-bottom:14px}
-h1{font-size:42px;letter-spacing:6px;margin:12px 0}
-.sub{color:#aaa;font-size:12px;letter-spacing:3px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}
-.stat{border:1px solid #444;border-radius:10px;padding:10px 2px}
-.stat strong{display:block;font-size:24px;margin-top:4px}
-.lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;height:280px;background:#111;border-radius:12px;overflow:hidden}
-.lane{position:relative;overflow:hidden;background:#0a0a0a;border:0;border-right:1px solid #333;touch-action:manipulation}
-.note{position:absolute;left:12%;width:76%;height:12px;background:#fff;border-radius:8px}
-.hit{position:absolute;bottom:35px;left:5%;width:90%;height:5px;background:#aaa;border-radius:5px}
-button{background:#171717;color:white;border:1px solid #555;border-radius:10px;padding:13px 20px;font-size:16px;font-weight:bold;margin:5px;min-height:46px}
-.primary{background:#fff;color:#000}
-#message{min-height:28px;font-weight:bold;margin:12px}
-small{color:#aaa;line-height:1.8}
-</style>
-</head>
-<body>
-<main>
-<section class="panel">
-<div class="sub">ORIGINAL RHYTHM GAME</div>
-<h1>MONO BEAT</h1>
-<div class="sub">FEEL THE BEAT. KEEP THE FLOW.</div>
-<div class="stats">
-<div class="stat">SCORE<strong id="score">0</strong></div>
-<div class="stat">COMBO<strong id="combo">0</strong></div>
-<div class="stat">BEST<strong id="best">0</strong></div>
-</div>
-<div class="lanes" id="arena">
-<button class="lane" data-lane="0" aria-label="左"><span class="hit"></span></button>
-<button class="lane" data-lane="1" aria-label="中央"><span class="hit"></span></button>
-<button class="lane" data-lane="2" aria-label="右"><span class="hit"></span></button>
-</div>
-<div id="message">STARTを押してゲーム開始！</div>
-<button class="primary" id="start">▶ START</button>
-<button id="stop">■ STOP</button>
-<p><small>ノーツが判定ラインに来たら、同じ列をタップ！</small></p>
-</section>
-<section class="panel">
-<h3>HOW TO PLAY</h3>
-<small>
-● 3つのレーンをタップしてノーツを拾おう。<br>
-● タイミングが合うと得点とコンボが増える。<br>
-● ミスするとコンボがリセットされる。<br>
-● オリジナル楽曲は後から追加できるよ！
-</small>
-</section>
-</main>
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#f5f5f5;font-family:system-ui,-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center}.app{width:min(100%,560px);padding:18px 14px 24px}.brand{letter-spacing:.3em;font-weight:900;font-size:28px}.sub{color:#999;font-size:11px;letter-spacing:.22em;margin-top:2px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.pill{border:1px solid #555;border-radius:20px;padding:6px 10px;font-size:11px;color:#ddd}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#141414;border:1px solid #292929;padding:10px;border-radius:10px;text-align:center}.label{font-size:10px;letter-spacing:.12em;color:#888}.value{font-size:21px;font-weight:800;margin-top:3px}#arena{height:min(62vh,620px);min-height:350px;position:relative;overflow:hidden;background:#050608 url("humans-error-art.png") center 36%/cover no-repeat;border:1px solid #8c929b;border-radius:10px;display:grid;grid-template-columns:repeat(3,1fr);touch-action:manipulation;box-shadow:0 0 28px #dce7ff20,inset 0 0 80px #000b}.lane{position:relative;border-right:1px solid #dce7ff55;background:linear-gradient(90deg,#02040a55,#02040a20,#02040a55)}.lane:last-child{border:0}.lane:nth-child(2){background:linear-gradient(90deg,#02040a45,#02040a12,#02040a45),linear-gradient(90deg,transparent,#eaf3ff99 50%,transparent);background-size:100% 100%,1px 100%;background-repeat:no-repeat;background-position:center}.hitline{position:absolute;left:0;right:0;bottom:66px;height:3px;background:#f5f8ff;box-shadow:0 0 18px #fff,0 0 34px #9dbfff}.note{position:absolute;left:13%;width:74%;height:17px;border-radius:5px;background:linear-gradient(180deg,#fff,#dce9ff);box-shadow:0 0 14px #fff,0 0 24px #9ec5ff;border:1px solid #fff}.key{position:absolute;bottom:15px;left:12%;width:76%;height:42px;border:1px solid #d8e4ff;border-radius:5px;display:grid;place-items:center;color:#f4f7ff;font-weight:800;font-size:12px;background:#05070b99;box-shadow:0 0 10px #dce7ff55}.key.active{background:#fff;color:#000;box-shadow:0 0 20px #fff}.overlay{position:absolute;inset:0;background:linear-gradient(#03050bd9,#03050bb8);backdrop-filter:blur(1px);z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}.overlay h1{font-size:28px;letter-spacing:.16em;margin:0 0 8px}.overlay p{font-size:13px;color:#aaa;line-height:1.7;max-width:320px}.btn{background:#fff;color:#000;border:0;border-radius:999px;padding:13px 24px;font-size:14px;font-weight:900;margin-top:12px;cursor:pointer}.btn:disabled{opacity:.4}.small{font-size:10px!important;color:#666!important}.judge{position:absolute;z-index:4;top:34%;width:100%;text-align:center;font-weight:900;font-size:22px;letter-spacing:.15em;text-shadow:0 2px 8px #000;pointer-events:none}.progress{height:4px;background:#252525;margin:12px 2px 7px;border-radius:5px;overflow:hidden}.bar{height:100%;width:0;background:#fff}.song{display:flex;justify-content:space-between;color:#888;font-size:11px}.footer{color:#555;text-align:center;font-size:10px;letter-spacing:.1em;margin-top:18px}#loadmsg{color:#bbb;font-size:12px;margin-top:10px}
+</style></head><body><main class="app"><header class="top"><div><div class="brand">HUMANS ERROR</div><div class="sub">MONO BEAT · ORIGINAL MUSIC</div></div><span class="pill">3 LANE / 01</span></header>
+<div class="stats"><div class="stat"><div class="label">SCORE</div><div class="value" id="score">000000</div></div><div class="stat"><div class="label">COMBO</div><div class="value" id="combo">0</div></div><div class="stat"><div class="label">BEST</div><div class="value" id="best">0</div></div></div>
+<div id="arena"><div class="lane" data-lane="0"><div class="key">←</div></div><div class="lane" data-lane="1"><div class="key">↓</div></div><div class="lane" data-lane="2"><div class="key">→</div></div><div class="hitline"></div><div class="judge" id="judge"></div><div class="overlay" id="overlay"><h1>HUMANS ERROR</h1><p>「Humans error ver」<br>音楽のリズムに合わせて、白いノーツをタップ！<br>左・中央・右の3レーンでプレイ。</p><button class="btn" id="start" disabled>音楽を解析中…</button><div id="loadmsg">音源を読み込んでいます</div><p class="small">イヤホン推奨 ・ 画面をタップしてもプレイできます</p></div></div>
+<div class="progress"><div class="bar" id="bar"></div></div><div class="song"><span>HUMANS ERROR VER</span><span id="time">00:00 / --:--</span></div><div class="footer">NOT PERFECT. JUST HUMAN. · FIND YOUR RHYTHM</div><audio id="audio" src="Humans error ver.mp3" preload="auto"></audio></main>
 <script>
-const arena=document.getElementById('arena');
-const lanes=[...document.querySelectorAll('.lane')];
-const scoreEl=document.getElementById('score');
-const comboEl=document.getElementById('combo');
-const bestEl=document.getElementById('best');
-const message=document.getElementById('message');
-const startBtn=document.getElementById('start');
-const stopBtn=document.getElementById('stop');
-
-let running=false,score=0,combo=0,best=0;
-let notes=[],lastSpawn=0,lastFrame=0,lastBeat=0,raf=0,audio=null;
-const speed=185,spawnEvery=610;
-
-function update(){
- scoreEl.textContent=score;
- comboEl.textContent=combo;
- bestEl.textContent=best;
-}
-function say(text){message.textContent=text}
-
-function sound(freq=440,duration=.07){
- if(!audio)return;
- try{
-  const osc=audio.createOscillator();
-  const gain=audio.createGain();
-  osc.type='sine';
-  osc.frequency.value=freq;
-  gain.gain.setValueAtTime(.04,audio.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
-  osc.connect(gain);
-  gain.connect(audio.destination);
-  osc.start();
-  osc.stop(audio.currentTime+duration);
- }catch(e){}
-}
-function spawn(){
- const lane=Math.floor(Math.random()*3);
- const el=document.createElement('span');
- el.className='note';
- lanes[lane].appendChild(el);
- notes.push({lane,y:-14,el});
-}
-function stopGame(){
- running=false;
- cancelAnimationFrame(raf);
- notes.forEach(n=>n.el.remove());
- notes=[];
- startBtn.textContent='↻ RETRY';
-}
-function frame(now){
- if(!running)return;
- if(!lastFrame)lastFrame=now;
- const dt=Math.min((now-lastFrame)/1000,.05);
- lastFrame=now;
- if(now-lastSpawn>spawnEvery){
-  spawn();
-  lastSpawn=now;
- }
- for(let i=notes.length-1;i>=0;i--){
-  const n=notes[i];
-  n.y+=speed*dt;
-  n.el.style.top=n.y+'px';
-  if(n.y>arena.clientHeight-25){
-   n.el.remove();
-   notes.splice(i,1);
-   combo=0;
-   update();
-   say('MISS');
-  }
- }
- if(now-lastBeat>500){
-  sound(180,.045);
-  lastBeat=now;
- }
- raf=requestAnimationFrame(frame);
-}
-function tap(lane){
- if(!running)return;
- const target=arena.clientHeight-40;
- let idx=-1,dist=Infinity;
- notes.forEach((n,i)=>{
-  if(n.lane===lane){
-   const d=Math.abs(n.y-target);
-   if(d<dist){dist=d;idx=i}
-  }
- });
- if(idx>=0&&dist<68){
-  const n=notes[idx];
-  n.el.remove();
-  notes.splice(idx,1);
-  const points=dist<22?100:dist<43?70:40;
-  score+=points;
-  combo++;
-  best=Math.max(best,score);
-  sound(500+lane*130,.08);
-  say(points===100?'PERFECT!':points===70?'GREAT!':'GOOD');
- }else{
-  combo=0;
-  sound(110,.09);
-  say('MISS');
- }
- update();
- const hit=lanes[lane].querySelector('.hit');
- hit.style.opacity='.35';
- setTimeout(()=>hit.style.opacity='1',90);
-}
-lanes.forEach((el,i)=>{
- el.addEventListener('pointerdown',e=>{
-  e.preventDefault();
-  tap(i);
- });
-});
-startBtn.addEventListener('click',async()=>{
- if(running)return;
- notes.forEach(n=>n.el.remove());
- notes=[];
- score=0;combo=0;lastSpawn=0;lastFrame=0;lastBeat=0;
- update();
- try{
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(AC){
-   if(!audio)audio=new AC();
-   if(audio.state==='suspended')await audio.resume();
-  }
- }catch(e){}
- running=true;
- startBtn.textContent='▶ PLAYING';
- say('READY… TAP TO THE BEAT!');
- raf=requestAnimationFrame(frame);
-});
-stopBtn.addEventListener('click',()=>{
- if(running){
-  stopGame();
-  say('STOPPED! SCORE: '+score);
- }else{
-  say('STARTを押してゲーム開始！');
- }
-});
-update();
-</script>
-</body>
-</html>
+const audio=document.getElementById('audio'), overlay=document.getElementById('overlay'), startBtn=document.getElementById('start'), loadmsg=document.getElementById('loadmsg');let chart=[],notes=[],playing=false,score=0,combo=0,best=Number(localStorage.getItem('monobeat-best')||0),lastJudge=0,raf=0;
+document.getElementById('best').textContent=best;
+const fmt=t=>{if(!isFinite(t))return '00:00';return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')};
+function setLoad(s){loadmsg.textContent=s}
+async function analyze(){try{const r=await fetch('Humans error ver.mp3');if(!r.ok)throw Error('音源ファイルが見つかりません');const buf=await r.arrayBuffer();const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();const decoded=await ctx.decodeAudioData(buf);const data=decoded.getChannelData(0), sr=decoded.sampleRate, step=Math.floor(sr*.05), energy=[];for(let i=0;i<data.length;i+=step){let sum=0,n=Math.min(step,data.length-i);for(let j=0;j<n;j++)sum+=data[i+j]*data[i+j];energy.push(Math.sqrt(sum/n));}let smooth=energy.map((v,i)=>{let s=0,c=0;for(let j=Math.max(0,i-3);j<=Math.min(energy.length-1,i+3);j++){s+=energy[j];c++}return s/c});let avg=smooth.reduce((a,b)=>a+b,0)/smooth.length;let peaks=[];for(let i=4;i<smooth.length-4;i++){let local=smooth.slice(Math.max(0,i-12),Math.min(smooth.length,i+13)).reduce((a,b)=>a+b,0)/Math.min(25,smooth.length);if(smooth[i]>smooth[i-1]&&smooth[i]>=smooth[i+1]&&smooth[i]>Math.max(avg*.78,local*1.22)&&smooth[i]>.025)peaks.push({t:i*.05,v:smooth[i]});}let filtered=[];for(const p of peaks){if(p.t<.45)continue;let prev=filtered[filtered.length-1];if(!prev||p.t-prev.t>.28)filtered.push(p);else if(p.v>prev.v)filtered[filtered.length-1]=p;}if(filtered.length<12){for(let t=.8;t<decoded.duration-0.4;t+=.55)filtered.push({t,v:1});filtered.sort((a,b)=>a.t-b.t);filtered=filtered.filter((p,i)=>!i||p.t-filtered[i-1].t>.25)}chart=filtered.map((p,i)=>({t:p.t,l:(i*7+Math.floor(p.t*3))%3}));audio.dataset.duration=decoded.duration;setLoad(chart.length+' ノーツを準備しました');startBtn.disabled=false;startBtn.textContent='PLAY';await ctx.close();}catch(e){setLoad('音源を読み込めません。index.htmlとMP3を同じフォルダに置いてください');startBtn.textContent='読み込み失敗';}}
+function spawn(){notes=[];document.querySelectorAll('.note').forEach(n=>n.remove());chart.forEach((n,i)=>{let el=document.createElement('div');el.className='note';el.style.top='-24px';document.querySelectorAll('.lane')[n.l].appendChild(el);notes.push({...n,el,done:false})})}
+function begin(){audio.currentTime=0;audio.play().then(()=>{playing=true;overlay.style.display='none';score=combo=0;document.getElementById('score').textContent='000000';document.getElementById('combo').textContent='0';spawn();tick()}).catch(()=>{overlay.style.display='flex';setLoad('再生できません。もう一度PLAYを押してください')})}
+function tick(){if(!playing)return;const now=audio.currentTime,duration=Number(audio.dataset.duration)||audio.duration||1;for(const n of notes){if(n.done)continue;let delta=n.t-now;let y=(1-delta/1.65)*(document.getElementById('arena').clientHeight-95);n.el.style.top=y+'px';if(delta<-.19){n.done=true;n.el.remove();combo=0;document.getElementById('combo').textContent=combo;showJudge('MISS');}}
+ document.getElementById('bar').style.width=Math.min(100,now/duration*100)+'%';document.getElementById('time').textContent=fmt(now)+' / '+fmt(duration);if(audio.ended||now>=duration-.03){finish();return}raf=requestAnimationFrame(tick)}
+function showJudge(s){const j=document.getElementById('judge');j.textContent=s;j.style.opacity='1';lastJudge=performance.now();setTimeout(()=>{if(performance.now()-lastJudge>=430)j.textContent=''},430)}
+function hit(lane){if(!playing)return;document.querySelectorAll('.key')[lane].classList.add('active');setTimeout(()=>document.querySelectorAll('.key')[lane].classList.remove('active'),100);const now=audio.currentTime;let target=null,dist=.2;for(const n of notes){if(n.done||n.l!==lane)continue;const d=Math.abs(n.t-now);if(d<dist){target=n;dist=d}}if(!target){showJudge('MISS');combo=0;document.getElementById('combo').textContent=combo;return}target.done=true;target.el.remove();let pts=dist<.075?1000:dist<.14?600:300;score+=pts;combo++;best=Math.max(best,combo);localStorage.setItem('monobeat-best',best);document.getElementById('score').textContent=String(score).padStart(6,'0');document.getElementById('combo').textContent=combo;document.getElementById('best').textContent=best;showJudge(dist<.075?'PERFECT':dist<.14?'GREAT':'GOOD')}
+function finish(){playing=false;cancelAnimationFrame(raf);audio.pause();overlay.style.display='flex';overlay.innerHTML=`<h1>RESULT</h1><p>YOUR SCORE</p><div style="font-size:40px;font-weight:900">${String(score).padStart(6,'0')}</div><p>BEST COMBO　${best}</p><button class="btn" id="again">もう一度プレイ</button><p class="small">MONO BEAT · THANKS FOR PLAYING</p>`;document.getElementById('again').onclick=()=>{overlay.innerHTML='<h1>HUMANS ERROR</h1><p>「Humans error ver」<br>リズムに合わせてタップ！</p><button class="btn" id="start">PLAY</button>';document.getElementById('start').onclick=begin;}}
+startBtn.onclick=begin;document.querySelectorAll('.lane').forEach((el,i)=>el.addEventListener('pointerdown',e=>{e.preventDefault();hit(i)}));document.addEventListener('keydown',e=>{const m={'ArrowLeft':0,'ArrowDown':1,'ArrowRight':2,'a':0,'s':1,'d':2};if(m[e.key]!==undefined)hit(m[e.key])});audio.addEventListener('error',()=>setLoad('MP3が見つかりません。ファイルを同じフォルダに置いてください'));analyze();
+</script></body></html>
