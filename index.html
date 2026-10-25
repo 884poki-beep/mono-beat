@@ -11,7 +11,25 @@ const audio=document.getElementById('audio'), overlay=document.getElementById('o
 document.getElementById('best').textContent=best;
 const fmt=t=>{if(!isFinite(t))return '00:00';return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')};
 function setLoad(s){loadmsg.textContent=s}
-async function analyze(){try{const r=await fetch('Humans error ver.mp3');if(!r.ok)throw Error('音源ファイルが見つかりません');const buf=await r.arrayBuffer();const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();const decoded=await ctx.decodeAudioData(buf);const data=decoded.getChannelData(0), sr=decoded.sampleRate, step=Math.floor(sr*.05), energy=[];for(let i=0;i<data.length;i+=step){let sum=0,n=Math.min(step,data.length-i);for(let j=0;j<n;j++)sum+=data[i+j]*data[i+j];energy.push(Math.sqrt(sum/n));}let smooth=energy.map((v,i)=>{let s=0,c=0;for(let j=Math.max(0,i-3);j<=Math.min(energy.length-1,i+3);j++){s+=energy[j];c++}return s/c});let avg=smooth.reduce((a,b)=>a+b,0)/smooth.length;let peaks=[];for(let i=4;i<smooth.length-4;i++){let local=smooth.slice(Math.max(0,i-12),Math.min(smooth.length,i+13)).reduce((a,b)=>a+b,0)/Math.min(25,smooth.length);if(smooth[i]>smooth[i-1]&&smooth[i]>=smooth[i+1]&&smooth[i]>Math.max(avg*.78,local*1.22)&&smooth[i]>.025)peaks.push({t:i*.05,v:smooth[i]});}let filtered=[];for(const p of peaks){if(p.t<.45)continue;let prev=filtered[filtered.length-1];if(!prev||p.t-prev.t>.28)filtered.push(p);else if(p.v>prev.v)filtered[filtered.length-1]=p;}if(filtered.length<12){for(let t=.8;t<decoded.duration-0.4;t+=.55)filtered.push({t,v:1});filtered.sort((a,b)=>a.t-b.t);filtered=filtered.filter((p,i)=>!i||p.t-filtered[i-1].t>.25)}chart=filtered.map((p,i)=>({t:p.t,l:(i*7+Math.floor(p.t*3))%3}));audio.dataset.duration=decoded.duration;setLoad(chart.length+' ノーツを準備しました');startBtn.disabled=false;startBtn.textContent='PLAY';await ctx.close();}catch(e){setLoad('音源を読み込めません。index.htmlとMP3を同じフォルダに置いてください');startBtn.textContent='読み込み失敗';}}
+async function analyze(){try{const r=await fetch('Humans error ver.mp3');if(!r.ok)throw Error('音源ファイルが見つかりません');const buf=await r.arrayBuffer();const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();const decoded=await ctx.decodeAudioData(buf);const data=decoded.getChannelData(0), sr=decoded.sampleRate, step=Math.floor(sr*.05), energy=[];for(let i=0;i<data.length;i+=step){let sum=0,n=Math.min(step,data.length-i);for(let j=0;j<n;j++)sum+=data[i+j]*data[i+j];energy.push(Math.sqrt(sum/n));}let smooth=energy.map((v,i)=>{let s=0,c=0;for(let j=Math.max(0,i-3);j<=Math.min(energy.length-1,i+3);j++){s+=energy[j];c++}return s/c});let avg=smooth.reduce((a,b)=>a+b,0)/smooth.length;let peaks=[];for(let i=4;i<smooth.length-4;i++){let local=smooth.slice(Math.max(0,i-12),Math.min(smooth.length,i+13)).reduce((a,b)=>a+b,0)/Math.min(25,smooth.length);if(smooth[i]>smooth[i-1]&&smooth[i]>=smooth[i+1]&&smooth[i]>Math.max(avg*.78,local*1.22)&&smooth[i]>.025)peaks.push({t:i*.05,v:smooth[i]});}let filtered=[];for(const p of peaks){if(p.t<.45)continue;let prev=filtered[filtered.length-1];if(!prev||p.t-prev.t>.28)filtered.push(p);else if(p.v>prev.v)filtered[filtered.length-1]=p;}// 音源解析でピークが少なすぎる場合は、曲全体にノーツを補充する
+const minNotes = Math.floor(decoded.duration * 1.5); // 約1.5ノーツ/秒
+if(filtered.length < minNotes){
+  const beatStep = 0.55; // 約109 BPM相当の間隔
+  const generated = [];
+  for(let t=0.8, i=0; t<decoded.duration-0.35; t+=beatStep, i++){
+    generated.push({t, v:1, lane:(i*2 + Math.floor(i/4))%3});
+  }
+  // 解析で検出できたピークも残し、近すぎるノーツだけ避ける
+  const combined = [...filtered, ...generated].sort((a,b)=>a.t-b.t);
+  filtered = [];
+  for(const p of combined){
+    const prev = filtered[filtered.length-1];
+    if(!prev || p.t-prev.t >= 0.28) filtered.push(p);
+    else if(p.v > prev.v) filtered[filtered.length-1] = p;
+  }
+}
+chart=filtered.map((p,i)=>({t:p.t,l:(p.lane!==undefined?p.lane:(i*7+Math.floor(p.t*3))%3)}));
+audio.dataset.duration=decoded.duration;setLoad(chart.length+' ノーツを準備しました');startBtn.disabled=false;startBtn.textContent='PLAY';await ctx.close();}catch(e){setLoad('音源を読み込めません。index.htmlとMP3を同じフォルダに置いてください');startBtn.textContent='読み込み失敗';}}
 function spawn(){notes=[];document.querySelectorAll('.note').forEach(n=>n.remove());chart.forEach((n,i)=>{let el=document.createElement('div');el.className='note';el.style.top='-24px';document.querySelectorAll('.lane')[n.l].appendChild(el);notes.push({...n,el,done:false})})}
 function begin(){audio.currentTime=0;audio.play().then(()=>{playing=true;overlay.style.display='none';score=combo=0;document.getElementById('score').textContent='000000';document.getElementById('combo').textContent='0';spawn();tick()}).catch(()=>{overlay.style.display='flex';setLoad('再生できません。もう一度PLAYを押してください')})}
 function tick(){if(!playing)return;const now=audio.currentTime,duration=Number(audio.dataset.duration)||audio.duration||1;for(const n of notes){if(n.done)continue;let delta=n.t-now;let y=(1-delta/1.65)*(document.getElementById('arena').clientHeight-95);n.el.style.top=y+'px';if(delta<-.19){n.done=true;n.el.remove();combo=0;document.getElementById('combo').textContent=combo;showJudge('MISS');}}
